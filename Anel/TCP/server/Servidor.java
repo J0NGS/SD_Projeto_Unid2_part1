@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import Anel.TCP.client.Cliente;
 
+// Classe Servidor implementa a interface Runnable para possibilitar a execução em uma thread separada
 public class Servidor implements Runnable {
     ServerSocket socketServidor;
     Socket cliente;
@@ -14,19 +15,20 @@ public class Servidor implements Runnable {
     int idProcesso;
     Cliente clienteApp;
 
+    // Construtor da classe Servidor
     public Servidor(int porta, int idProcesso, Cliente clienteApp) {
         this.porta = porta;
         this.idProcesso = idProcesso;
         this.clienteApp = clienteApp;
     }
 
+    // Método run() é chamado quando a thread é iniciada
     @Override
     public void run() {
-        /*
-         * Cria um socket na porta 54321
-         */
         try {
+            // Cria um socket do servidor na porta especificada
             socketServidor = new ServerSocket(porta);
+            // Exibe informações sobre o servidor
             System.out.println("\r\n" + //
                     " _____                 _     _                          _ _                  \r\n" + //
                     "/  ___|               (_)   | |                        | (_)                 \r\n" + //
@@ -46,22 +48,14 @@ public class Servidor implements Runnable {
                     InetAddress.getLocalHost().getHostName());
             System.out.println("===============================");
 
-            /*
-             * Aguarda alguém se conectar.
-             * A execução do servidor fica bloqueada na chamada
-             * do método accept da classe ServerSocket.
-             * Quando alguém se conectar ao
-             * servidor, o método desbloqueia e
-             * retorna com um objeto da classe Socket, que
-             * é uma porta da comunicação.
-             */
+            // Aguarda conexão de clientes
             System.out.println("LOG_SERVER-> Aguardando conexão do cliente...");
             while (true) {
                 cliente = socketServidor.accept();
-                // Cria uma thread do servidor para tratar a conexão
+                // Cria uma instância da classe ImplServidor para tratar a conexão
                 ImplServidor servidor = new ImplServidor(cliente, idProcesso, clienteApp);
                 Thread t = new Thread(servidor);
-                // Inicia a thread para o cliente conectado
+                // Inicia uma thread para o cliente conectado
                 t.start();
             }
         } catch (IOException e) {

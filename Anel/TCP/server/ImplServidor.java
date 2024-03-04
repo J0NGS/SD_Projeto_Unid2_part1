@@ -11,6 +11,7 @@ import Anel.TCP.Mensagem.TIPO;
 import Anel.TCP.client.Cliente;
 import Anel.TCP.client.ImplCliente;
 
+// Classe que implementa o comportamento do servidor para lidar com a comunicação com os clientes
 public class ImplServidor implements Runnable {
     private Socket socketCliente;
     private boolean conexao = true;
@@ -18,26 +19,30 @@ public class ImplServidor implements Runnable {
     private int idProcesso;
     private Cliente clienteProximo;
 
+    // Construtor da classe ImplServidor
     public ImplServidor(Socket cliente, int idProcesso, Cliente clienteProximo) {
         this.socketCliente = cliente;
         this.idProcesso = idProcesso;
         this.clienteProximo = clienteProximo;
     }
 
+    // Método run() é chamado quando a thread é iniciada
     @Override
     public void run() {
-        System.out.println("LOG_SERVER-> Conexão efetuada com o cliente...");
         try {
+            // Cria um ObjectInputStream para receber dados do cliente
             entrada = new ObjectInputStream(socketCliente.getInputStream());
+            // Loop para lidar com a comunicação enquanto a conexão estiver ativa
             while (conexao) {
                 try {
+                    // Loop para ler mensagens do cliente
                     while (true) {
                         Mensagem mensagem = (Mensagem) entrada.readObject();
-                        if (mensagem.getMessage().equalsIgnoreCase("fim")) {
-                            conexao = false;
-                            break;
-                        } else if (mensagem.getTipo().equals(TIPO.UNICAST)) {
+                         if (mensagem.getTipo().equals(TIPO.UNICAST)) {
+                            // Se a mensagem for do tipo UNICAST
                             if (mensagem.getProcessoRemetente() == idProcesso) {
+                                // Se o processo remetente for igual ao ID deste servidor
+                                // Exibe a mensagem recebida
                                 System.out.println("\r\n" + //
                                         "___  ___                                                     _                             _       \r\n"
                                         + //
@@ -57,6 +62,8 @@ public class ImplServidor implements Runnable {
                                         + //
                                         "" + "\n" + mensagem.toString());
                             } else if (mensagem.getProcessoDestinatario() == idProcesso) {
+                                // Se o processo destinatário for igual ao ID deste servidor
+                                // Exibe a mensagem recebida e encaminha para o próximo servidor
                                 System.out.println("\r\n" + //
                                         "___  ___                                                              _     _     _       \r\n"
                                         + //
@@ -75,12 +82,20 @@ public class ImplServidor implements Runnable {
                                         "                             |___/                                                        \r\n"
                                         + //
                                         "" + "\n" + mensagem.toString());
+                                // Adiciona uma assinatura à mensagem
+                                mensagem.setMessage(mensagem.getMessage()
+                                        + " - Mensagem assinada pelo destinatario, processo-> " + idProcesso);
+                                // Encaminha a mensagem para o próximo servidor no anel
                                 encaminharMensagem(mensagem);
-                            } else{
+                            } else {
+                                // Encaminha a mensagem para o próximo servidor no anel
                                 encaminharMensagem(mensagem);
                             }
                         } else if (mensagem.getTipo().equals(TIPO.BROADCAST)) {
+                            // Se a mensagem for do tipo BROADCAST
                             if (mensagem.getProcessoRemetente() == idProcesso) {
+                                // Se o processo remetente for igual ao ID deste servidor
+                                // Exibe a mensagem recebida
                                 System.out.println("\r\n" + //
                                         "___  ___                                                     _                             _       \r\n"
                                         + //
@@ -100,6 +115,8 @@ public class ImplServidor implements Runnable {
                                         + //
                                         "" + "\n" + mensagem.toString());
                             } else {
+                                // Se o processo remetente for diferente do ID deste servidor
+                                // Exibe a mensagem recebida e encaminha para o próximo servidor
                                 System.out.println("\r\n" + //
                                         "___  ___                                                              _     _     _       \r\n"
                                         + //
@@ -118,7 +135,10 @@ public class ImplServidor implements Runnable {
                                         "                             |___/                                                        \r\n"
                                         + //
                                         "" + "\n" + mensagem.toString());
-                                // Encaminhar a mensagem para o próximo processo no anel
+                                // Adiciona uma assinatura à mensagem
+                                mensagem.setMessage(mensagem.getMessage()
+                                        + " - Mensagem assinada pelo destinatario, processo-> " + idProcesso);
+                                // Encaminha a mensagem para o próximo servidor no anel
                                 encaminharMensagem(mensagem);
                             }
                         }
@@ -128,6 +148,7 @@ public class ImplServidor implements Runnable {
                     Thread.sleep(100); // Aguarda 100 ms antes de tentar ler novamente
                 }
             }
+            // Fecha o ObjectInputStream e o socket
             entrada.close();
             System.out.println("Fim do cliente " + socketCliente.getInetAddress().getHostAddress());
             socketCliente.close();
@@ -136,15 +157,21 @@ public class ImplServidor implements Runnable {
         }
     }
 
+    // Método para encaminhar a mensagem para o próximo servidor no anel
     private void encaminharMensagem(Mensagem mensagem) {
-        // Encaminhar a mensagem para o próximo processo no anel
         try {
+            // Cria um novo socket para se comunicar com o próximo servidor
             Socket socket = new Socket(clienteProximo.getIp(), clienteProximo.getPorta());
+            // Cria uma instância de ImplCliente para enviar a mensagem
             ImplCliente cliente = new ImplCliente(socket, idProcesso);
             ObjectOutputStream saida = new ObjectOutputStream(socket.getOutputStream());
+            // Envia a mensagem através do ObjectOutputStream
             saida.writeObject(mensagem);
             saida.flush();
-            System.out.println("LOG_SERVER-> Mensagem encaminhada para o próximo processo no anel.");
+            System.out.println("LOG_SERVER-> Nova thread do cliente rodando no servidor para encaminhar a mensagem.");
+            System.out.println("LOG_SERVER-> Mensagem encaminhada para o próximo processo no anel na porta "
+                    + clienteProximo.getPorta());
+            // Fecha o ObjectOutputStream e o socket
             saida.close();
             socket.close();
         } catch (IOException e) {
