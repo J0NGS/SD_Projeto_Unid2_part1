@@ -7,12 +7,22 @@ public class Mensagem implements Serializable{
     int processoRemetente;
     int processoDestinatario;
     String message;
+    TIPO tipo;
 
 
-    public Mensagem(int processoRemetente, int processoDestinatario, String message) {
+
+    public Mensagem(int processoRemetente, int processoDestinatario, String message, TIPO tipo) {
         this.processoRemetente = processoRemetente;
         this.processoDestinatario = processoDestinatario;
         this.message = message;
+        this.tipo = tipo;
+    }
+
+    public Mensagem(int processoRemetente, String message, TIPO tipo) {
+        this.processoRemetente = processoRemetente;
+        this.processoDestinatario = 0;
+        this.message = message;
+        this.tipo = tipo;
     }
 
 
@@ -41,12 +51,25 @@ public class Mensagem implements Serializable{
         this.message = message;
     }
 
+    public TIPO getTipo() {
+        return this.tipo;
+    }
+
+    public void setTipo(TIPO tipo) {
+        this.tipo = tipo;
+    }
+
+    public enum TIPO {
+        BROADCAST, UNICAST
+    }
+
     @Override
     public String toString() {
         return "{" +
-            " processoRemetente= '" + getProcessoRemetente() + "\n" +
-            "processoDestinatario= '" + getProcessoDestinatario() + "\n" +
-            "message= '" + getMessage() + "\n" +
+            " processoRemetente= '" + getProcessoRemetente() + "'\n" +
+            "processoDestinatario= '" + getProcessoDestinatario() + "'\n" +
+            "message= '" + getMessage() + "'\n" +
+            "tipo= '" + getTipo() + "'\n" +
             "}";
     }
 
