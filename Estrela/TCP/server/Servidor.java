@@ -55,6 +55,7 @@ public class Servidor {
                 Thread t = new Thread(servidor);
                 // Inicia a thread para o cliente conectado
                 ImplServidor.cont++;
+                ImplServidor.adicionarConexao(ImplServidor.cont, cliente);
                 t.start();
             }
         } catch (IOException e) {
