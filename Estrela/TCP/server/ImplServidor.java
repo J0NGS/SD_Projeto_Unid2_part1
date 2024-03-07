@@ -41,10 +41,15 @@ public class ImplServidor implements Runnable {
                     if (mensagemRecebida.getMessage().equalsIgnoreCase("fim"))
                         conexao = false;
                     else if(mensagemRecebida.getTipo().equals(TIPO.UNICAST)){
+                        System.out.println("LOG_SERVER-> ENCAMINHANDO MENSAGEM PARA -> " + mensagemRecebida.getProcessoDestinatario());
                         System.out.println(mensagemRecebida);
                     }
                     else if(mensagemRecebida.getTipo().equals(TIPO.BROADCAST)){
                         System.out.println(mensagemRecebida);
+                        for (int indice  : conexoes.keySet()) {
+                            mensagemRecebida.setProcessoDestinatario(indice);
+                            encaminharMensagem(mensagemRecebida);
+                        }
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
