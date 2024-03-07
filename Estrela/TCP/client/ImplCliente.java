@@ -1,14 +1,18 @@
 package Estrela.TCP.client;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import Anel.TCP.Mensagem;
+import Anel.TCP.Mensagem.TIPO;
+
 public class ImplCliente implements Runnable {
     private Socket cliente;
     private boolean conexao = true;
-    private PrintStream saida;
+    private ObjectOutputStream saida;
 
     public ImplCliente(Socket c) {
         this.cliente = c;
@@ -20,7 +24,7 @@ public class ImplCliente implements Runnable {
             System.out.println("O cliente conectou ao servidor");
             // Prepara para leitura do teclado
             // Cria objeto para enviar a mensagem ao servidor
-            saida = new PrintStream(cliente.getOutputStream());
+            saida = new ObjectOutputStream(cliente.getOutputStream());
             // Envia mensagem ao servidor
             Scanner teclado = new Scanner(System.in);
             while (conexao) {
@@ -28,8 +32,11 @@ public class ImplCliente implements Runnable {
                 String mensagem = teclado.nextLine();
                 if (mensagem.equalsIgnoreCase("fim"))
                     conexao = false;
-                else
-                    saida.println(mensagem);
+                else{
+                    Mensagem mensagemObjeto = new Mensagem(1, 1, mensagem, TIPO.UNICAST);
+                    saida.writeObject(mensagemObjeto);
+                }
+
             }
             saida.close();
             teclado.close();

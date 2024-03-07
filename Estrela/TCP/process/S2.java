@@ -4,6 +4,6 @@ import Estrela.TCP.client.Cliente;
 
 public class S2 {
     public static void main(String[] args) {
-        Cliente client = new Cliente("10.0.0.182", 8081);
+        Cliente client = new Cliente("10.0.0.182oi", 8081);
     }
 }
