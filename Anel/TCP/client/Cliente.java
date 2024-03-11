@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-
 // Classe responsável por representar o cliente no sistema
 public class Cliente implements Runnable {
     String ip; // Endereço IP do servidor

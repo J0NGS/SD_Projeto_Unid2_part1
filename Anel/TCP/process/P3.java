@@ -5,7 +5,7 @@ import Anel.TCP.server.Servidor;
 
 public class P3 {
     public static void main(String[] args) {
-        Cliente cliente = new Cliente("10.0.0.157", 8084, 1);
+        Cliente cliente = new Cliente("10.0.0.157", 8084, 3);
         Servidor servidor = new Servidor(8083, 3, cliente);
         Thread client = new Thread(cliente);
         Thread server = new Thread(servidor);
